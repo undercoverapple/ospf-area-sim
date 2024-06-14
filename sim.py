@@ -110,41 +110,35 @@ def get_avg_hop_delay(network, num_areas=1, max_age_sec=1800, lsa_size_bits=1024
 #  Start of main script
 #
 
+if len(sys.argv) == 1:
+    t = generate_topology(4)
+    visualise_network(t, 10, 9)
+    new_net = split_network(t)
+    visualise_network(new_net, 10, 9)
+else:
+    degrees = [x for x in range(1, int(sys.argv[1]), 10)]
+    times1 = []
+    times2 = []
+    for d in degrees:
+        t = generate_topology(d)
+        print(d, ": ", end="", flush=True)
+        avg_ping_time = get_avg_hop_delay(t, 1) * get_avg_route_distance(t) * 1000
+        times1.append(avg_ping_time)
+        print("Full ", end="", flush=True)
 
-# degrees = [x for x in range(1, int(sys.argv[1]), 10)]
-# times1 = []
-# times2 = []
-# for d in degrees:
-#     t = generate_topology(d)
-#     print(d, ": ", end="", flush=True)
-#     avg_ping_time = get_avg_hop_delay(t, 1) * get_avg_route_distance(t) * 1000
-#     times1.append(avg_ping_time)
-#     print("Full ", end="", flush=True)
-
-#     t = split_network(t)
-#     avg_ping_time = get_avg_hop_delay(t, 2) * get_avg_route_distance(t) * 1000
-#     times2.append(avg_ping_time)
-#     print("Split", flush=True)
-
-
-# fig, ax = plt.subplots()
-# ax.get_yaxis().get_major_formatter().set_useOffset(False)
-# ax.plot(degrees, times1, label="One OSPF Area")
-# ax.plot(degrees, times2, label="Two OSPF Areas")
-# ax.set_title("Estimated Latency Between Routers vs OSPF Network Size")
-# ax.set_xlabel("Number of Routers in Network")
-# ax.set_ylabel("Latency (ms)")
-# plt.legend(loc="upper left")
-# plt.show()
+        t = split_network(t)
+        avg_ping_time = get_avg_hop_delay(t, 2) * get_avg_route_distance(t) * 1000
+        times2.append(avg_ping_time)
+        print("Split", flush=True)
 
 
+    fig, ax = plt.subplots()
+    ax.get_yaxis().get_major_formatter().set_useOffset(False)
+    ax.plot(degrees, times1, label="One OSPF Area")
+    ax.plot(degrees, times2, label="Two OSPF Areas")
+    ax.set_title("Estimated Latency Between Routers vs OSPF Network Size")
+    ax.set_xlabel("Number of Routers in Network")
+    ax.set_ylabel("Latency (ms)")
+    plt.legend(loc="upper left")
+    plt.show()
 
-t = generate_topology(4)
-visualise_network(t, 10, 9)
-# print("Full network route distance:", get_route_distance(t, 10, 9))
-# print("Full network avg route dist:", get_avg_route_distance(t))
-
-new_net = split_network(t)
-visualise_network(new_net, 10, 9)
-# print("Split network route distance:", get_route_distance(new_net, 10, 9))
-# print("Split network avg route dist:", get_avg_route_distance(new_net)) 
